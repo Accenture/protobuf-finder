@@ -14,7 +14,7 @@ import idaapi
 import ida_bytes
 import ida_ida
 import ida_kernwin
-
+import ida_nalt
 
 # Max protobuf size - used to load code from IDA database; 
 MAX_PROTOBUF_SIZE = 0x100000
@@ -333,7 +333,9 @@ class ProtobufExtractor:
         
         while True:
             # search binary for ".proto" string
-            r = ida_bytes.bin_search(searchStartAddr,ida_ida.MAXADDR,bytes([0x2E, 0x70, 0x72, 0x6F, 0x74,0x6F]),bytes([0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]),1,1)
+            pattern = ida_bytes.compiled_binpat_vec_t()
+            ida_bytes.parse_binpat_str(pattern,0x0,'2E 70 72 6F 74 6F',16,ida_nalt.BPU_2B)
+            r,_ = ida_bytes.bin_search3(searchStartAddr,ida_ida.MAXADDR,pattern,1)
             if r == idaapi.BADADDR:
                 print("[Protobuf][dbg] Search results into BADADDR (not found). Break!")
                 break
